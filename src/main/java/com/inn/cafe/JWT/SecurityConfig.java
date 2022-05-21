@@ -22,7 +22,8 @@ import org.springframework.web.cors.CorsConfiguration;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final CustomerUserDetailsService customerUserDetailsService;
-    private final PasswordEncoder passwordEncoder;
+
+    private final JwtFilter jwtFilter;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -35,6 +36,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .csrf().disable()
                 .authorizeRequests()
+
                 .antMatchers("/user/login", "/user/signup", "/user/forgotPassword")
                 .permitAll()
                 .anyRequest()
@@ -44,10 +46,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
+        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
 
     }
-
-
     @Bean(name = BeanIds.AUTHENTICATION_MANAGER)
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
@@ -58,4 +60,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+
 }
